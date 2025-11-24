@@ -37,7 +37,13 @@ class OwnerController extends Controller
         ->sum('profit_amount');
     $monthExpenses = Expense::whereYear('expense_date', Carbon::now()->year)
         ->whereMonth('expense_date', Carbon::now()->month)
-        ->sum('amount');        // Stock value
+        ->sum('amount');
+    
+    // Calculate cash in hand
+    $todayCashInHand = $todayRealizedProfit - $todayExpenses;
+    $monthCashInHand = $monthRealizedProfit - $monthExpenses;
+    
+    // Stock value
         $totalStockValue = Product::all()->sum(function($product) {
             return $product->current_stock * $product->purchase_price;
         });
@@ -59,10 +65,12 @@ class OwnerController extends Controller
             'todayProfit',
             'todayRealizedProfit',
             'todayExpenses',
+            'todayCashInHand',
             'monthSales',
             'monthProfit',
             'monthRealizedProfit',
             'monthExpenses',
+            'monthCashInHand',
             'totalStockValue',
             'totalDue', 
             'dueCustomers',

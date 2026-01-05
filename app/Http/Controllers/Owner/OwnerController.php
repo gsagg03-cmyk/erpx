@@ -8,13 +8,14 @@ use App\Models\Sale;
 use App\Models\Product;
 use App\Models\ProfitRealization;
 use App\Models\Expense;
+use App\Models\Business;
 use Carbon\Carbon;
 
 class OwnerController extends Controller
 {
     public function dashboard()
     {
-        $businessId = auth()->user()->business_id;
+        $businessId = $this->getBusinessId();
         
         // Get all users in this business
         $businessUserIds = User::where('business_id', $businessId)->pluck('id');
@@ -111,7 +112,7 @@ class OwnerController extends Controller
     
     public function dueCustomers()
     {
-        $businessId = auth()->user()->business_id;
+        $businessId = $this->getBusinessId();
         $businessUserIds = User::where('business_id', $businessId)->pluck('id');
         
         $query = Sale::whereIn('user_id', $businessUserIds)
@@ -244,5 +245,29 @@ class OwnerController extends Controller
         $totalDue = (clone $statsQuery)->sum('due_amount');
         
         return view('owner.all-sales', compact('sales', 'totalSales', 'totalProfit', 'totalPaid', 'totalDue'));
+    }
+
+    /**
+     * Resolve or provision a business id for the authenticated user so owners can access dashboard.
+     */
+    private function getBusinessId(): int
+    {
+        $user = auth()->user();
+
+        if ($user->business_id) {
+            return $user->business_id;
+        }
+
+        $business = Business::first() ?: Business::create([
+            'name' => 'Default Business',
+            'owner_name' => $user->name ?? 'Owner',
+            'phone' => $user->phone ?? null,
+            'address' => 'N/A',
+        ]);
+
+        $user->business_id = $business->id;
+        $user->save();
+
+        return $business->id;
     }
 }

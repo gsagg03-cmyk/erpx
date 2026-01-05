@@ -23,8 +23,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->renderable(function (UnauthorizedException $e, Request $request) {
             if (auth()->check()) {
-                return redirect()->route(auth()->user()->getDashboardRoute())
-                    ->with('error', __('আপনার এই পাতায় প্রবেশাধিকার নেই।'));
+                // Silently redirect without error banner
+                return redirect()->route(auth()->user()->getDashboardRoute());
             }
 
             return redirect()->route('login');

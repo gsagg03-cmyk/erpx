@@ -34,6 +34,16 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * Get the name of the unique identifier for the user.
+     *
+     * @return string
+     */
+    public function username(): string
+    {
+        return 'phone';
+    }
+
     // Relationships
     public function business()
     {

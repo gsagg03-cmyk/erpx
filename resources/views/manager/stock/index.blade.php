@@ -23,7 +23,10 @@
         </div>
         
         <!-- Existing Product Form -->
-        <form method="POST" action="{{ route('manager.stock.store') }}" id="existingProductForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        @php
+            $routePrefix = auth()->user()->hasRole('owner') ? 'owner' : 'manager';
+        @endphp
+        <form method="POST" action="{{ route($routePrefix . '.stock.store') }}" id="existingProductForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             @csrf
 
             <div>
@@ -65,7 +68,7 @@
         </form>
 
         <!-- New Product Form -->
-        <form method="POST" action="{{ route('manager.stock.store') }}" id="newProductForm" class="hidden">
+        <form method="POST" action="{{ route($routePrefix . '.stock.store') }}" id="newProductForm" class="hidden">
             @csrf
             <input type="hidden" name="create_new_product" value="1">
             

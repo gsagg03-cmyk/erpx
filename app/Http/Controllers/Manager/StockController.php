@@ -5,13 +5,14 @@ namespace App\Http\Controllers\Manager;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\StockEntry;
+use App\Models\Business;
 use Illuminate\Http\Request;
 
 class StockController extends Controller
 {
     public function index()
     {
-        $businessId = auth()->user()->business_id;
+        $businessId = $this->getBusinessId();
         $products = Product::where('business_id', $businessId)->latest()->get();
         $stockEntries = StockEntry::whereHas('product', fn($q) => $q->where('business_id', $businessId))->with(['product', 'user'])->latest()->paginate(15);
         return view('manager.stock.index', compact('products', 'stockEntries'));
@@ -21,7 +22,7 @@ class StockController extends Controller
     {
         // Check if creating a new product
         if ($request->has('create_new_product')) {
-            $businessId = auth()->user()->business_id;
+            $businessId = $this->getBusinessId();
             
             $validated = $request->validate([
                 'new_product_name' => ['required', 'string', 'max:255'],
@@ -40,7 +41,7 @@ class StockController extends Controller
 
             // Create new product
             $product = Product::create([
-                'business_id' => auth()->user()->business_id,
+                'business_id' => $businessId,
                 'name' => $validated['new_product_name'],
                 'sku' => $validated['new_product_sku'],
                 'sell_price' => $validated['new_product_price'],
@@ -73,5 +74,29 @@ class StockController extends Controller
         );
 
         return redirect()->route('manager.stock.index')->with('success', 'স্টক সফলভাবে যোগ করা হয়েছে।');
+    }
+
+    /**
+     * Resolve or provision a business id for the authenticated user so owners can add stock/products.
+     */
+    private function getBusinessId(): int
+    {
+        $user = auth()->user();
+
+        if ($user->business_id) {
+            return $user->business_id;
+        }
+
+        $business = Business::first() ?: Business::create([
+            'name' => 'Default Business',
+            'owner_name' => $user->name ?? 'Owner',
+            'phone' => $user->phone ?? null,
+            'address' => 'N/A',
+        ]);
+
+        $user->business_id = $business->id;
+        $user->save();
+
+        return $business->id;
     }
 }

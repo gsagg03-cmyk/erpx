@@ -4,13 +4,14 @@ namespace App\Http\Controllers\Manager;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\Business;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
     public function index()
     {
-        $businessId = auth()->user()->business_id;
+        $businessId = $this->getBusinessId();
         $products = Product::where('business_id', $businessId)->latest()->paginate(15);
         return view('manager.products.index', compact('products'));
     }
@@ -22,7 +23,7 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        $businessId = auth()->user()->business_id;
+        $businessId = $this->getBusinessId();
         
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -61,7 +62,7 @@ class ProductController extends Controller
             abort(403, 'Unauthorized access to product from different business.');
         }
         
-        $businessId = auth()->user()->business_id;
+        $businessId = $this->getBusinessId();
         
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -100,5 +101,29 @@ class ProductController extends Controller
         
         $product->delete();
         return redirect()->route('manager.products.index')->with('success', 'Product deleted successfully.');
+    }
+
+    /**
+     * Resolve or provision a business id for the authenticated user so owners can create stock/products.
+     */
+    private function getBusinessId(): int
+    {
+        $user = auth()->user();
+
+        if ($user->business_id) {
+            return $user->business_id;
+        }
+
+        $business = Business::first() ?: Business::create([
+            'name' => 'Default Business',
+            'owner_name' => $user->name ?? 'Owner',
+            'phone' => $user->phone ?? null,
+            'address' => 'N/A',
+        ]);
+
+        $user->business_id = $business->id;
+        $user->save();
+
+        return $business->id;
     }
 }

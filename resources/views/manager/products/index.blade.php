@@ -3,10 +3,13 @@
 @section('title', 'Manage Products')
 
 @section('content')
+@php
+    $routePrefix = auth()->user()->hasRole('owner') ? 'owner' : 'manager';
+@endphp
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-gray-900">Manage Products</h1>
-        <a href="{{ route('manager.products.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        <a href="{{ route($routePrefix . '.products.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
             Add New Product
         </a>
     </div>
@@ -32,8 +35,8 @@
                     <td class="px-6 py-4 whitespace-nowrap">৳{{ number_format($product->sell_price, 2) }}</td>
                     <td class="px-6 py-4 whitespace-nowrap">{{ $product->current_stock }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm">
-                        <a href="{{ route('manager.products.edit', $product) }}" class="text-blue-600 hover:text-blue-900 mr-3">Edit</a>
-                        <form action="{{ route('manager.products.destroy', $product) }}" method="POST" class="inline">
+                        <a href="{{ route($routePrefix . '.products.edit', $product) }}" class="text-blue-600 hover:text-blue-900 mr-3">Edit</a>
+                        <form action="{{ route($routePrefix . '.products.destroy', $product) }}" method="POST" class="inline">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure?')">Delete</button>

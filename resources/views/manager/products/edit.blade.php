@@ -3,13 +3,16 @@
 @section('title', 'Edit Product')
 
 @section('content')
+@php
+    $routePrefix = auth()->user()->hasRole('owner') ? 'owner' : 'manager';
+@endphp
 <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="mb-6">
         <h1 class="text-3xl font-bold text-gray-900">Edit Product</h1>
     </div>
 
     <div class="bg-white rounded-lg shadow p-6">
-        <form method="POST" action="{{ route('manager.products.update', $product) }}">
+        <form method="POST" action="{{ route($routePrefix . '.products.update', $product) }}">
             @csrf
             @method('PUT')
 
@@ -46,7 +49,7 @@
             </div>
 
             <div class="flex items-center justify-between">
-                <a href="{{ route('manager.products.index') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                <a href="{{ route($routePrefix . '.products.index') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
                     Cancel
                 </a>
                 <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">

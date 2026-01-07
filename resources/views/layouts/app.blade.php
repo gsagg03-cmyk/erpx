@@ -50,7 +50,15 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
-                    <span class="text-xl font-bold text-gray-800">ইআরপি সিস্টেম</span>
+                    @auth
+                        @if(auth()->user()->business)
+                            <span class="text-xl font-bold text-gray-800">{{ auth()->user()->business->name }}</span>
+                        @else
+                            <span class="text-xl font-bold text-gray-800">ইআরপি সিস্টেম</span>
+                        @endif
+                    @else
+                        <span class="text-xl font-bold text-gray-800">ইআরপি সিস্টেম</span>
+                    @endauth
                     @auth
                         <span class="ml-4 text-sm text-gray-600">
                             @if(auth()->user()->isSuperAdmin())

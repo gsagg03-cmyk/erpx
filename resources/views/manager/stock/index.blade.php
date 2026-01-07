@@ -139,10 +139,10 @@
             <tbody class="bg-white divide-y divide-gray-200">
                 @forelse($stockEntries as $entry)
                 <tr>
-                    <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm">{{ $entry->created_at->format('d/m/Y H:i') }}</td>
+                    <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm">{{ bn_number($entry->created_at->format('d/m/Y H:i')) }}</td>
                     <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm">{{ $entry->product->name }}</td>
-                    <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm">{{ $entry->quantity }}</td>
-                    <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm">৳{{ number_format($entry->purchase_price, 2) }}</td>
+                    <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm">{{ bn_number($entry->quantity) }}</td>
+                    <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm">৳{{ bn_number(number_format($entry->purchase_price, 2)) }}</td>
                     <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm hidden sm:table-cell">{{ $entry->user->name }}</td>
                 </tr>
                 @empty

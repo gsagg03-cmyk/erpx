@@ -1,5 +1,21 @@
 <?php
 
+if (!function_exists('bn_number')) {
+    /**
+     * Convert English numbers to Bengali numerals
+     *
+     * @param mixed $number
+     * @return string
+     */
+    function bn_number($number)
+    {
+        $bengaliDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+        $englishDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+        
+        return str_replace($englishDigits, $bengaliDigits, (string)$number);
+    }
+}
+
 if (!function_exists('numberToBengaliWords')) {
     /**
      * Convert a number to Bengali words

@@ -35,7 +35,11 @@
                     <select name="product_id" id="product_id" class="shadow border rounded w-full py-2 px-3 text-gray-700 @error('product_id') border-red-500 @enderror" required>
                         <option value="">পণ্য নির্বাচন করুন</option>
                         @foreach($products as $product)
-                            <option value="{{ $product->id }}" {{ old('product_id') == $product->id ? 'selected' : '' }}>
+                            <option value="{{ $product->id }}" 
+                                    data-current-stock="{{ $product->current_stock }}"
+                                    data-purchase-price="{{ $product->purchase_price }}"
+                                    data-sell-price="{{ $product->sell_price }}"
+                                    {{ old('product_id') == $product->id ? 'selected' : '' }}>
                                 {{ $product->name }} (পণ্য কোড: {{ $product->sku }})
                             </option>
                         @endforeach
@@ -43,6 +47,7 @@
                     @error('product_id')
                         <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
                     @enderror
+                    <p id="current_stock_display" class="text-sm text-gray-600 mt-1"></p>
                 </div>
 
                 <div>
@@ -226,17 +231,28 @@
     // Auto-fill product details when selected
     const productSelect = document.getElementById('product_id');
     const products = @json($products);
+    const stockDisplay = document.getElementById('current_stock_display');
     
     productSelect.addEventListener('change', function() {
-        const selectedId = this.value;
-        const product = products.find(p => p.id == selectedId);
+        const selectedOption = this.options[this.selectedIndex];
         
-        if (product) {
-            document.getElementById('purchase_price').value = product.purchase_price || '';
-            document.getElementById('sell_price').value = product.sell_price || '';
+        if (selectedOption.value) {
+            const currentStock = selectedOption.dataset.currentStock;
+            const purchasePrice = selectedOption.dataset.purchasePrice;
+            const sellPrice = selectedOption.dataset.sellPrice;
+            
+            document.getElementById('purchase_price').value = purchasePrice || '';
+            document.getElementById('sell_price').value = sellPrice || '';
+            
+            if (currentStock) {
+                stockDisplay.textContent = 'বর্তমান স্টক: ' + currentStock;
+            } else {
+                stockDisplay.textContent = '';
+            }
         } else {
             document.getElementById('purchase_price').value = '';
             document.getElementById('sell_price').value = '';
+            stockDisplay.textContent = '';
         }
     });
 </script>

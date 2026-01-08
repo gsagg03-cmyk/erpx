@@ -50,15 +50,31 @@
 
             <div class="mb-4 bg-blue-50 p-4 rounded-lg border border-blue-200">
                 <label class="block text-gray-700 text-sm font-bold mb-2">বর্তমান স্টক</label>
-                <p class="text-2xl font-bold text-blue-600">{{ $product->current_stock }} টি</p>
+                <p class="text-2xl font-bold text-blue-600">{{ bn_number($product->current_stock) }} টি</p>
             </div>
 
             @if(auth()->user()->hasRole('owner'))
-            <div class="mb-6">
-                <label for="add_stock" class="block text-gray-700 text-sm font-bold mb-2">স্টক যোগ করুন (ঐচ্ছিক)</label>
-                <input type="number" step="1" min="0" name="add_stock" id="add_stock" value="{{ old('add_stock', 0) }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 @error('add_stock') border-red-500 @enderror" placeholder="নতুন স্টক পরিমাণ লিখুন">
-                <p class="text-sm text-gray-600 mt-1">এখানে সংখ্যা লিখলে তা বর্তমান স্টকের সাথে যোগ হবে</p>
-                @error('add_stock')
+            <div class="mb-6 bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                <label class="block text-gray-700 text-sm font-bold mb-3">স্টক সমন্বয় (ঐচ্ছিক)</label>
+                <p class="text-sm text-gray-600 mb-3">ভুলবশত বেশি/কম স্টক যোগ হলে এখানে সংশোধন করুন (বিক্রয় হিসেবে গণনা হবে না)</p>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="adjust_type" class="block text-gray-700 text-xs font-semibold mb-1">সমন্বয় ধরন</label>
+                        <select name="adjust_type" id="adjust_type" class="shadow border rounded w-full py-2 px-3 text-gray-700">
+                            <option value="">কোনো সমন্বয় নেই</option>
+                            <option value="increase">বৃদ্ধি করুন (+)</option>
+                            <option value="decrease">হ্রাস করুন (-)</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="adjust_quantity" class="block text-gray-700 text-xs font-semibold mb-1">পরিমাণ</label>
+                        <input type="number" step="1" min="0" name="adjust_quantity" id="adjust_quantity" value="{{ old('adjust_quantity', 0) }}" class="shadow border rounded w-full py-2 px-3 text-gray-700 @error('adjust_quantity') border-red-500 @enderror" placeholder="০">
+                    </div>
+                </div>
+                
+                @error('adjust_quantity')
                     <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
                 @enderror
             </div>

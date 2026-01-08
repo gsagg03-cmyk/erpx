@@ -77,7 +77,8 @@ class ProductController extends Controller
             ],
             'purchase_price' => ['required', 'numeric', 'min:0'],
             'sell_price' => ['required', 'numeric', 'min:0'],
-            'add_stock' => ['nullable', 'numeric', 'min:0'],
+            'adjust_type' => ['nullable', 'in:increase,decrease'],
+            'adjust_quantity' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         // Update product details
@@ -88,19 +89,39 @@ class ProductController extends Controller
             'sell_price' => $validated['sell_price'],
         ]);
 
-        // If owner adds stock, create a stock entry and update current_stock
-        if (auth()->user()->hasRole('owner') && !empty($validated['add_stock']) && $validated['add_stock'] > 0) {
-            // Create stock entry
-            \App\Models\StockEntry::create([
-                'product_id' => $product->id,
-                'quantity' => $validated['add_stock'],
-                'purchase_price' => $validated['purchase_price'],
-                'added_by' => auth()->id(),
-                'business_id' => $businessId,
-            ]);
-
-            // Update current stock
-            $product->increment('current_stock', $validated['add_stock']);
+        // If owner adjusts stock (not counted as sale)
+        if (auth()->user()->hasRole('owner') && !empty($validated['adjust_type']) && !empty($validated['adjust_quantity']) && $validated['adjust_quantity'] > 0) {
+            if ($validated['adjust_type'] === 'increase') {
+                // Increase stock
+                $product->increment('current_stock', $validated['adjust_quantity']);
+                
+                // Create stock entry
+                \App\Models\StockEntry::create([
+                    'product_id' => $product->id,
+                    'quantity' => $validated['adjust_quantity'],
+                    'purchase_price' => $validated['purchase_price'],
+                    'added_by' => auth()->id(),
+                    'business_id' => $businessId,
+                ]);
+            } elseif ($validated['adjust_type'] === 'decrease') {
+                // Decrease stock (correction, not a sale)
+                $newStock = $product->current_stock - $validated['adjust_quantity'];
+                
+                if ($newStock < 0) {
+                    return redirect()->back()->withErrors(['adjust_quantity' => 'বর্তমান স্টকের চেয়ে বেশি কমানো সম্ভব নয়।'])->withInput();
+                }
+                
+                $product->decrement('current_stock', $validated['adjust_quantity']);
+                
+                // Create negative stock entry for record
+                \App\Models\StockEntry::create([
+                    'product_id' => $product->id,
+                    'quantity' => -$validated['adjust_quantity'],
+                    'purchase_price' => $validated['purchase_price'],
+                    'added_by' => auth()->id(),
+                    'business_id' => $businessId,
+                ]);
+            }
         }
 
         $routePrefix = auth()->user()->hasRole('owner') ? 'owner' : 'manager';

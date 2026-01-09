@@ -170,32 +170,37 @@
     </div>
     @endif
 
-    <!-- Overall Summary -->
-    <div class="mb-3 sm:mb-4">
-        <h2 class="text-lg sm:text-xl font-semibold text-gray-700 mb-2 sm:mb-3">সাধারণ তথ্য</h2>
-    </div>
-    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-{{ auth()->user()->isDueSystemEnabled() ? '4' : '2' }} gap-3 sm:gap-4 lg:gap-6 mb-4 sm:mb-6 lg:mb-8">
-        <div class="bg-white rounded-lg shadow p-3 sm:p-6 border-l-4 border-purple-500">
-            <div class="text-xs sm:text-sm text-gray-600">আমার ম্যানেজার</div>
-            <div class="text-2xl sm:text-3xl font-bold text-gray-900">{{ $totalManagers }}</div>
-        </div>
-        <div class="bg-white rounded-lg shadow p-3 sm:p-6 border-l-4 border-indigo-500">
-            <div class="text-xs sm:text-sm text-gray-600">মোট সেলসম্যান</div>
-            <div class="text-2xl sm:text-3xl font-bold text-gray-900">{{ $totalSalesmen }}</div>
-        </div>
-        @if(auth()->user()->isDueSystemEnabled())
-        <div class="bg-white rounded-lg shadow p-3 sm:p-6 border-l-4 border-red-500">
-            <div class="text-xs sm:text-sm text-gray-600">মোট বকেয়া</div>
-            <div class="text-2xl sm:text-3xl font-bold text-red-600">৳{{ bn_number(number_format($totalDue, 2)) }}</div>
-        </div>
-        <div class="bg-white rounded-lg shadow p-3 sm:p-6 border-l-4 border-yellow-500">
-            <div class="text-xs sm:text-sm text-gray-600">বকেয়া কাস্টমার</div>
-            <div class="text-2xl sm:text-3xl font-bold text-gray-900">{{ $dueCustomers->count() }}</div>
-        </div>
-        @endif
-    </div>
+
+
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6 lg:mb-8">
+        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
+            <h2 class="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">সাম্প্রতিক বিক্রয়</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-xs sm:text-sm">
+                    <thead>
+                        <tr class="border-b">
+                            <th class="text-left py-2">পণ্য</th>
+                            <th class="text-left py-2">সেলসম্যান</th>
+                            <th class="text-left py-2">পরিমাণ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($recentSales as $sale)
+                        <tr class="border-b">
+                            <td class="py-2">{{ $sale->product->name }}</td>
+                            <td class="py-2">{{ $sale->user->name }}</td>
+                            <td class="py-2">৳{{ bn_number(number_format($sale->total_amount, 2)) }}</td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="3" class="py-4 text-center text-gray-500">কোন বিক্রয় নেই</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
         <div class="bg-white rounded-lg shadow p-4 sm:p-6">
             <h2 class="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">দ্রুত কাজ</h2>
             <div class="space-y-2">
@@ -227,34 +232,31 @@
                 </a>
             </div>
         </div>
+    </div>
 
-        <div class="bg-white rounded-lg shadow p-4 sm:p-6">
-            <h2 class="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">সাম্প্রতিক বিক্রয়</h2>
-            <div class="overflow-x-auto">
-                <table class="min-w-full text-xs sm:text-sm">
-                    <thead>
-                        <tr class="border-b">
-                            <th class="text-left py-2">পণ্য</th>
-                            <th class="text-left py-2">সেলসম্যান</th>
-                            <th class="text-left py-2">পরিমাণ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($recentSales as $sale)
-                        <tr class="border-b">
-                            <td class="py-2">{{ $sale->product->name }}</td>
-                            <td class="py-2">{{ $sale->user->name }}</td>
-                            <td class="py-2">৳{{ bn_number(number_format($sale->total_amount, 2)) }}</td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="3" class="py-4 text-center text-gray-500">কোন বিক্রয় নেই</td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+    <!-- Overall Summary -->
+    <div class="mb-3 sm:mb-4">
+        <h2 class="text-lg sm:text-xl font-semibold text-gray-700 mb-2 sm:mb-3">সাধারণ তথ্য</h2>
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-{{ auth()->user()->isDueSystemEnabled() ? '4' : '2' }} gap-3 sm:gap-4 lg:gap-6 mb-4 sm:mb-6 lg:mb-8">
+        <div class="bg-white rounded-lg shadow p-3 sm:p-6 border-l-4 border-purple-500">
+            <div class="text-xs sm:text-sm text-gray-600">আমার ম্যানেজার</div>
+            <div class="text-2xl sm:text-3xl font-bold text-gray-900">{{ $totalManagers }}</div>
         </div>
+        <div class="bg-white rounded-lg shadow p-3 sm:p-6 border-l-4 border-indigo-500">
+            <div class="text-xs sm:text-sm text-gray-600">মোট সেলসম্যান</div>
+            <div class="text-2xl sm:text-3xl font-bold text-gray-900">{{ $totalSalesmen }}</div>
+        </div>
+        @if(auth()->user()->isDueSystemEnabled())
+        <div class="bg-white rounded-lg shadow p-3 sm:p-6 border-l-4 border-red-500">
+            <div class="text-xs sm:text-sm text-gray-600">মোট বকেয়া</div>
+            <div class="text-2xl sm:text-3xl font-bold text-red-600">৳{{ bn_number(number_format($totalDue, 2)) }}</div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-3 sm:p-6 border-l-4 border-yellow-500">
+            <div class="text-xs sm:text-sm text-gray-600">বকেয়া কাস্টমার</div>
+            <div class="text-2xl sm:text-3xl font-bold text-gray-900">{{ $dueCustomers->count() }}</div>
+        </div>
+        @endif
     </div>
 </div>
 @endsection

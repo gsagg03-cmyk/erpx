@@ -215,8 +215,9 @@ class OwnerController extends Controller
                         ->first();
         }
         
-        // Get voucher template
-        $template = $owner ? \App\Models\VoucherTemplate::where('owner_id', $owner->id)->first() : null;
+        // Get voucher template by business_id (new schema)
+        $businessId = $sale->user->business_id;
+        $template = $businessId ? \App\Models\VoucherTemplate::where('business_id', $businessId)->first() : null;
         
         return view('voucher.payment-voucher', compact('profitRealization', 'sale', 'template'));
     }

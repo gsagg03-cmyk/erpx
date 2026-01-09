@@ -166,4 +166,44 @@ class SaleController extends Controller
 
         return 'salesman';
     }
+
+    public function destroy(Sale $sale)
+    {
+        // Check if user has permission to delete this sale
+        $user = auth()->user();
+        
+        // Only owner can delete sales, or the salesman who created it (within same business)
+        if (!$user->hasRole('owner') && $sale->user_id !== $user->id) {
+            return back()->withErrors(['error' => 'আপনার এই বিক্রয় মুছার অনুমতি নেই']);
+        }
+
+        // Check if sale belongs to the same business
+        if ($sale->user->business_id !== $user->business_id) {
+            return back()->withErrors(['error' => 'আপনার এই বিক্রয় মুছার অনুমতি নেই']);
+        }
+
+        try {
+            \DB::beginTransaction();
+
+            // Restore stock
+            $product = $sale->product;
+            $product->increment('current_stock', $sale->quantity);
+
+            // Delete all profit realizations for this sale
+            ProfitRealization::where('sale_id', $sale->id)->delete();
+
+            // Delete the sale
+            $sale->delete();
+
+            \DB::commit();
+
+            $baseRoute = $this->resolveBaseRoute();
+            return redirect()->route($baseRoute . '.all-sales')
+                ->with('success', 'বিক্রয় সফলভাবে বাতিল হয়েছে। স্টক পুনরায় যোগ করা হয়েছে।');
+
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            return back()->withErrors(['error' => 'বিক্রয় বাতিল করতে সমস্যা হয়েছে: ' . $e->getMessage()]);
+        }
+    }
 }

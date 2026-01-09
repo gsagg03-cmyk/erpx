@@ -12,7 +12,7 @@ class ProductController extends Controller
     public function index()
     {
         $businessId = $this->getBusinessId();
-        $products = Product::where('business_id', $businessId)->latest()->paginate(15);
+        $products = Product::where('business_id', $businessId)->latest()->get();
         return view('manager.products.index', compact('products'));
     }
 

@@ -139,10 +139,7 @@
             </table>
         </div>
         
-        <!-- Pagination -->
-        <div class="px-3 sm:px-6 py-4 bg-gray-50">
-            {{ $sales->links() }}
-        </div>
+        <!-- Pagination removed: grouped view shows vouchers without pagination -->
     </div>
 </div>
 

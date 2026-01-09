@@ -195,8 +195,8 @@ class OwnerController extends Controller
         
         // Get owner
         $salesman = $sale->user;
-        $manager = $salesman->hasRole('manager') ? $salesman : $salesman->creator;
-        $owner = $manager->hasRole('owner') ? $manager : $manager->creator;
+        $manager = $salesman && $salesman->hasRole('manager') ? $salesman : ($salesman->creator ?? null);
+        $owner = $manager && $manager->hasRole('owner') ? $manager : ($manager->creator ?? null);
         
         // Get voucher template
         $template = \App\Models\VoucherTemplate::where('owner_id', $owner->id)->first();
